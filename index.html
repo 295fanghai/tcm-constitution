@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>九质灵枢 · 体质辨真录</title>
+<style>
+  :root {
+    --bg: #f5efe6;
+    --card: #fffdf7;
+    --ink: #3a3226;
+    --sub: #8a7c64;
+    --line: #e4d8c3;
+    --gold: #b08d4f;
+    --gold-deep: #8c6d34;
+    --accent: #7a4a3a;
+    --green: #3f6f4f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Noto Serif SC", "Songti SC", "SimSun", serif;
+    line-height: 1.7;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 32px 20px 80px; }
+
+  header { text-align: center; margin-bottom: 30px; }
+  header .seal {
+    display: inline-block; width: 84px; height: 84px; line-height: 84px;
+    background: var(--accent); color: #f7ead4; font-size: 26px; font-weight: 700;
+    border-radius: 10px; margin-bottom: 14px; letter-spacing: 2px;
+  }
+  header h1 { margin: 0 0 6px; font-size: 30px; letter-spacing: 4px; color: var(--ink); }
+  header .sub { color: var(--sub); font-size: 14px; letter-spacing: 2px; }
+  header .rule { max-width: 620px; margin: 16px auto 0; font-size: 14px; color: var(--sub);
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; }
+
+  .steps { display: flex; gap: 10px; justify-content: center; margin-bottom: 24px; }
+  .step { padding: 6px 16px; border-radius: 20px; font-size: 13px; border: 1px solid var(--line);
+    background: #efe7d6; color: var(--sub); }
+  .step.on { background: var(--gold); color: #fff; border-color: var(--gold); }
+
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 22px 24px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(60,45,20,.05); }
+  .panel h2 { margin: 0 0 4px; font-size: 20px; color: var(--gold-deep); letter-spacing: 2px; }
+  .panel .desc { color: var(--sub); font-size: 13px; margin-bottom: 16px; }
+
+  .gender-row { display: flex; gap: 12px; margin-bottom: 6px; }
+  .gender-btn { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--line);
+    background: #fbf7ee; cursor: pointer; text-align: center; font-size: 15px; font-family: inherit;
+    transition: all .15s; }
+  .gender-btn.sel { background: var(--gold); color: #fff; border-color: var(--gold); }
+
+  .scale { border-top: 1px dashed var(--line); padding-top: 14px; margin-top: 14px; }
+  .scale:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+  .scale-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+  .scale-head .name { font-size: 17px; font-weight: 700; color: var(--ink); letter-spacing: 1px; }
+  .scale-head .tag { font-size: 12px; color: var(--sub); }
+  .scale-head .note { font-size: 12px; color: var(--accent); }
+
+  .q { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #f0e8d8; }
+  .q:last-child { border-bottom: none; }
+  .q .txt { flex: 1; font-size: 15px; }
+  .q .rev { color: var(--accent); font-size: 12px; margin-left: 4px; }
+  .opts { display: flex; gap: 4px; }
+  .opts button { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line);
+    background: #fbf7ee; cursor: pointer; font-size: 13px; font-family: inherit; color: var(--ink);
+    transition: all .12s; }
+  .opts button:hover { border-color: var(--gold); }
+  .opts button.sel { background: var(--gold); color: #fff; border-color: var(--gold); }
+  .opts-labels { display: flex; justify-content: flex-end; gap: 4px; font-size: 11px; color: var(--sub); margin-top: 4px; }
+  .opts-labels span { width: 34px; text-align: center; }
+
+  .bar { display: flex; gap: 10px; margin-top: 18px; }
+  .bar button { flex: 1; padding: 13px; border-radius: 10px; border: none; cursor: pointer;
+    font-size: 16px; font-family: inherit; letter-spacing: 2px; transition: all .15s; }
+  .btn-main { background: var(--gold); color: #fff; }
+  .btn-main:hover { background: var(--gold-deep); }
+  .btn-ghost { background: #efe7d6; color: var(--sub); }
+  .btn-ghost:hover { background: #e6dcc6; }
+  .bar button:disabled { opacity: .5; cursor: not-allowed; }
+
+  .progress { font-size: 13px; color: var(--sub); text-align: center; margin-bottom: 12px; }
+
+  .result-card { text-align: center; padding: 24px; }
+  .result-card .main-type { font-size: 26px; font-weight: 700; color: var(--accent); letter-spacing: 3px; }
+  .result-card .main-verdict { font-size: 15px; color: var(--gold-deep); margin: 8px 0 20px; }
+  .score-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+  .score-table th, .score-table td { padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  .score-table th { color: var(--sub); font-weight: 600; }
+  .score-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; }
+  .badge.yes { background: #f3e0e0; color: #a23; }
+  .badge.lean { background: #f3ead2; color: #8a6a1e; }
+  .badge.no { background: #e8efe8; color: var(--green); }
+  .secondary { margin-top: 16px; font-size: 14px; color: var(--sub); }
+
+  .disclaimer { font-size: 12px; color: var(--sub); margin-top: 26px; padding: 14px 16px;
+    border: 1px dashed var(--line); border-radius: 10px; background: #faf5ea; }
+  .btn-restart { margin-top: 20px; }
+  @media (max-width: 560px) {
+    .q { flex-wrap: wrap; }
+    .opts { margin-left: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="seal">体质</div>
+    <h1>九质灵枢 · 体质辨真录</h1>
+    <div class="sub">中医体质分类与判定 · ZYYXH/T 157-2009</div>
+    <div class="rule">请根据<strong>近一年的体验和感觉</strong>回答以下问题。每题从「没有 / 很少 / 有时 / 经常 / 总是」中选择。<br>带 <span style="color:var(--accent)">＊</span> 的题目反向计分。</div>
+  </header>
+
+  <div class="steps">
+    <div class="step" id="step-gender">① 性别</div>
+    <div class="step" id="step-quiz">② 作答</div>
+    <div class="step" id="step-result">③ 判定</div>
+  </div>
+
+  <!-- 性别选择 -->
+  <div class="panel" id="panel-gender">
+    <h2>选择性别</h2>
+    <div class="desc">湿热质有两道性别专属题（女性答「带下色黄」、男性答「阴囊潮湿」），按性别二选一作答。</div>
+    <div class="gender-row">
+      <div class="gender-btn" id="gender-f" onclick="chooseGender('f')">女</div>
+      <div class="gender-btn" id="gender-m" onclick="chooseGender('m')">男</div>
+    </div>
+  </div>
+
+  <!-- 问卷 -->
+  <div class="panel" id="panel-quiz" style="display:none;">
+    <h2>体质问卷</h2>
+    <div class="progress" id="progress"></div>
+    <div id="quiz-body"></div>
+    <div class="bar">
+      <button class="btn-ghost" onclick="resetAll()">重做</button>
+      <button class="btn-main" id="btn-submit" onclick="submitQuiz()">提交判定</button>
+    </div>
+  </div>
+
+  <!-- 结果 -->
+  <div class="panel" id="panel-result" style="display:none;">
+    <div class="result-card" id="result-body"></div>
+  </div>
+
+  <div class="disclaimer">
+    本问卷结果仅为<strong>体质倾向参考</strong>，非疾病诊断，不预测疾病风险，不能替代医师面诊与四诊合参。涉及用药、药膳请咨询执业医师。
+  </div>
+</div>
+
+<script>
+// ===== 数据源：依据 ZYYXH/T 157-2009，分项呈现版 =====
+const SCALES = [
+  { key:"pinghe", name:"平和质", n:8, items:[
+    {t:"您精力充沛吗？"}, {t:"您容易疲乏吗？", rev:1}, {t:"您说话声音低弱无力吗？", rev:1},
+    {t:"您感到闷闷不乐、情绪低沉吗？", rev:1}, {t:"您比一般人耐受不了寒冷（冬天的寒冷，夏天的冷空调、电扇）吗？", rev:1},
+    {t:"您能适应外界自然和社会环境的变化吗？"}, {t:"您容易失眠吗？", rev:1}, {t:"您容易忘事（健忘）吗？", rev:1}
+  ]},
+  { key:"qixu", name:"气虚质", n:8, items:[
+    {t:"您容易疲乏吗？"}, {t:"您容易气短（呼吸短促，接不上气）吗？"}, {t:"您容易心慌吗？"},
+    {t:"您容易头晕或站起时晕眩吗？"}, {t:"您比别人容易患感冒吗？"}, {t:"您喜欢安静、懒得说话吗？"},
+    {t:"您说话声音无力吗？"}, {t:"您活动量稍大就容易出虚汗吗？"}
+  ]},
+  { key:"yangxu", name:"阳虚质", n:7, items:[
+    {t:"您手脚发凉吗？"}, {t:"您胃脘部、背部或腰膝部怕冷吗？"}, {t:"您感到怕冷、衣服比别人穿得多吗？"},
+    {t:"您比一般人耐受不了寒冷（冬天的寒冷，夏天的冷空调、电扇等）吗？"}, {t:"您比别人容易患感冒吗？"},
+    {t:"您吃（喝）凉的东西会感到不舒服或者怕吃（喝）凉东西吗？"}, {t:"您受凉或吃（喝）凉的东西后，容易腹泻（拉肚子）吗？"}
+  ]},
+  { key:"yinxu", name:"阴虚质", n:8, items:[
+    {t:"您感到手脚心发热吗？"}, {t:"您感觉身体、脸上发热吗？"}, {t:"您皮肤或口唇干吗？"},
+    {t:"您口唇的颜色比一般人红吗？"}, {t:"您容易便秘或大便干燥吗？"}, {t:"您面部两颧潮红或偏红吗？"},
+    {t:"您感到眼睛干涩吗？"}, {t:"您感到口干咽燥，总想喝水吗？"}
+  ]},
+  { key:"tanshi", name:"痰湿质", n:8, items:[
+    {t:"您感到胸闷或腹部胀满吗？"}, {t:"您感到身体沉重不轻松或不爽快吗？"}, {t:"您腹部肥满松软吗？"},
+    {t:"您有额部油脂分泌多的现象吗？"}, {t:"您上眼睑比别人肿（轻微隆起的现象）吗？"}, {t:"您嘴里有黏黏的感觉吗？"},
+    {t:"您平时痰多，特别是咽喉部总感到有痰堵着吗？"}, {t:"您舌苔厚腻或有舌苔厚厚的感觉吗？"}
+  ]},
+  { key:"shire", name:"湿热质", n:6, items:[
+    {t:"您面部或鼻部有油腻感或者油亮发光吗？"}, {t:"您容易生痤疮或疮疖吗？"}, {t:"您感到口苦或嘴里有异味吗？"},
+    {t:"您大便黏滞不爽、有解不尽的感觉吗？"}, {t:"您小便时尿道有发热感、尿色浓（深）吗？"},
+    {t:"您带下色黄（白带颜色发黄）吗？", gender:"f"}, {t:"您的阴囊部位潮湿吗？", gender:"m"}
+  ]},
+  { key:"xueyu", name:"血瘀质", n:7, items:[
+    {t:"您的皮肤在不知不觉中会出现青紫瘀斑（皮下出血）吗？"}, {t:"您两颧部有细微红丝吗？"}, {t:"您身体上有哪里疼痛吗？"},
+    {t:"您面色晦黯或容易出现褐斑吗？"}, {t:"您容易有黑眼圈吗？"}, {t:"您容易忘事（健忘）吗？"}, {t:"您口唇颜色偏黯吗？"}
+  ]},
+  { key:"qiyu", name:"气郁质", n:7, items:[
+    {t:"您感到闷闷不乐吗？"}, {t:"您容易精神紧张、焦虑不安吗？"}, {t:"您多愁善感、感情脆弱吗？"},
+    {t:"您容易感到害怕或受到惊吓吗？"}, {t:"您胁肋部或乳房胀痛吗？"}, {t:"您无缘无故叹气吗？"},
+    {t:"您咽喉部有异物感，且吐之不出、咽之不下吗？"}
+  ]},
+  { key:"tebing", name:"特禀质", n:7, items:[
+    {t:"您没有感冒时也会打喷嚏吗？"}, {t:"您没有感冒时也会鼻塞、流鼻涕吗？"}, {t:"您有因季节变化、温度变化或异味等原因而咳喘的现象吗？"},
+    {t:"您容易过敏（对药物、食物、气味、花粉或在季节交替、气候变化时）吗？"}, {t:"您的皮肤容易起荨麻疹（风团、风疹块、风疙瘩）吗？"},
+    {t:"您的皮肤因过敏出现过紫癜（紫红色瘀点、瘀斑）吗？"}, {t:"您的皮肤一抓就红，并出现抓痕吗？"}
+  ]}
+];
+const BIASED = SCALES.slice(1).map(s => s.key);
+const OPT_LABELS = ["没有","很少","有时","经常","总是"];
+
+let gender = null;            // 'f' | 'm'
+let answers = {};             // qid -> 1..5
+let qid = 0;                  // 全局题号计数器
+
+// ===== 构建问卷 =====
+function buildQuiz() {
+  const body = document.getElementById("quiz-body");
+  body.innerHTML = "";
+  qid = 0;
+  for (const s of SCALES) {
+    const sec = document.createElement("div");
+    sec.className = "scale";
+    let note = "";
+    if (s.key === "shire") note = "（按性别二选一，共答 6 题）";
+    sec.innerHTML = `<div class="scale-head"><span class="name">${s.name}</span>
+      <span class="tag">${s.n} 题</span><span class="note">${note}</span></div>`;
+    for (const it of s.items) {
+      if (it.gender && it.gender !== gender) continue;   // 跳过非本性别专属题
+      qid++;
+      const id = "q" + qid;
+      // 记录该题归属与是否反向，供计分用
+      it._id = id; it._scale = s.key;
+      const row = document.createElement("div");
+      row.className = "q";
+      row.innerHTML = `<div class="txt">${qid}. ${it.t}${it.rev ? '<span class="rev"> ＊</span>' : ''}</div>
+        <div class="opts">` + [1,2,3,4,5].map(v =>
+          `<button id="${id}_${v}" onclick="pick('${id}',${v})">${v}</button>`).join("") + `</div>`;
+      sec.appendChild(row);
+    }
+    body.appendChild(sec);
+  }
+}
+
+function pick(id, v) {
+  answers[id] = v;
+  for (let i=1;i<=5;i++) {
+    const b = document.getElementById(id + "_" + i);
+    b.classList.toggle("sel", i === v);
+  }
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = qid;
+  const done = Object.keys(answers).length;
+  document.getElementById("progress").textContent = `已作答 ${done} / ${total} 题`;
+}
+
+function chooseGender(g) {
+  gender = g;
+  document.getElementById("gender-f").classList.toggle("sel", g==="f");
+  document.getElementById("gender-m").classList.toggle("sel", g==="m");
+  answers = {};
+  buildQuiz();
+  updateProgress();
+  document.getElementById("panel-gender").style.display = "none";
+  document.getElementById("panel-quiz").style.display = "block";
+  setStep(2);
+}
+
+function setStep(n) {
+  [1,2,3].forEach(i => document.getElementById("step-" + (["gender","quiz","result"][i-1])).classList.toggle("on", i===n));
+}
+
+function resetAll() {
+  gender = null; answers = {};
+  document.getElementById("gender-f").classList.remove("sel");
+  document.getElementById("gender-m").classList.remove("sel");
+  document.getElementById("panel-gender").style.display = "block";
+  document.getElementById("panel-quiz").style.display = "none";
+  document.getElementById("panel-result").style.display = "none";
+  setStep(1);
+}
+
+// ===== 计分与判定（对齐文档第四、三节） =====
+function transform(raw, n) {
+  return Math.max(0, Math.min(100, Math.round(((raw - n) / (n * 4)) * 100)));
+}
+
+function compute() {
+  const raw = {}, n = {};
+  for (const s of SCALES) { raw[s.key] = 0; n[s.key] = 0; }
+  for (const s of SCALES) {
+    for (const it of s.items) {
+      if (!it._id) continue;               // 被性别过滤掉的题
+      const v = answers[it._id];
+      if (!v) continue;                    // 漏答不计入
+      raw[s.key] += it.rev ? (6 - v) : v;
+      n[s.key] += 1;
+    }
+  }
+  const score = {};
+  for (const s of SCALES) score[s.key] = n[s.key] ? transform(raw[s.key], n[s.key]) : 0;
+
+  const maxBiased = Math.max(...BIASED.map(k => score[k]));
+  let pinghe;
+  if (score.pinghe >= 60 && maxBiased < 30) pinghe = "是";
+  else if (score.pinghe >= 60 && maxBiased < 40) pinghe = "基本是";
+  else pinghe = "否";
+
+  const verdict = {};
+  for (const k of BIASED)
+    verdict[k] = score[k] >= 40 ? "是" : score[k] >= 30 ? "倾向是" : "否";
+
+  const yes  = BIASED.filter(k => score[k] >= 40).sort((a,b)=>score[b]-score[a]);
+  const lean = BIASED.filter(k => score[k] >= 30 && score[k] < 40).sort((a,b)=>score[b]-score[a]);
+  let main, secondary;
+  if (pinghe !== "否") {
+    main = { key:"pinghe", verdict:pinghe, score:score.pinghe };
+    secondary = lean.map(k => ({ key:k, verdict:"倾向是", score:score[k] }));
+  } else if (yes.length) {
+    main = { key:yes[0], verdict:"是", score:score[yes[0]] };
+    secondary = [
+      ...yes.slice(1).map(k => ({ key:k, verdict:"是", score:score[k] })),
+      ...lean.map(k => ({ key:k, verdict:"倾向是", score:score[k] }))
+    ];
+  } else if (lean.length) {
+    main = { key:lean[0], verdict:"倾向是", score:score[lean[0]] };
+    secondary = lean.slice(1).map(k => ({ key:k, verdict:"倾向是", score:score[k] }));
+  } else {
+    main = { key:"pinghe", verdict:"不明确", score:score.pinghe };
+    secondary = [];
+  }
+  return { raw, n, score, pinghe, verdict, main, secondary };
+}
+
+const NAME = { pinghe:"平和质", qixu:"气虚质", yangxu:"阳虚质", yinxu:"阴虚质",
+  tanshi:"痰湿质", shire:"湿热质", xueyu:"血瘀质", qiyu:"气郁质", tebing:"特禀质" };
+
+function submitQuiz() {
+  const total = qid;
+  const done = Object.keys(answers).length;
+  if (done < total) {
+    alert(`还有 ${total - done} 题未作答，请完成后再提交。`);
+    return;
+  }
+  const r = compute();
+  renderResult(r);
+  document.getElementById("panel-quiz").style.display = "none";
+  document.getElementById("panel-result").style.display = "block";
+  setStep(3);
+}
+
+function renderResult(r) {
+  const body = document.getElementById("result-body");
+  const badge = v => v === "是" ? '<span class="badge yes">是</span>'
+    : v === "倾向是" ? '<span class="badge lean">倾向是</span>'
+    : '<span class="badge no">否</span>';
+
+  let rows = "";
+  for (const s of SCALES) {
+    const k = s.key;
+    const v = k === "pinghe" ? r.pinghe : r.verdict[k];
+    rows += `<tr><td>${NAME[k]}</td><td class="num">${r.score[k]}</td>
+      <td class="num">${r.raw[k]}</td><td class="num">${r.n[k]}</td><td>${badge(v)}</td></tr>`;
+  }
+
+  let secondaryText = "";
+  if (r.secondary.length) {
+    secondaryText = "兼型 / 倾向：" + r.secondary.map(s =>
+      `${NAME[s.key]}（${s.verdict}）`).join("、");
+  } else {
+    secondaryText = "无兼夹体质。";
+  }
+
+  body.innerHTML = `
+    <div class="main-type">${NAME[r.main.key]}</div>
+    <div class="main-verdict">主型判定：${r.main.verdict}　·　转化分 ${r.main.score}</div>
+    <table class="score-table">
+      <thead><tr><th>体质</th><th class="num">转化分</th><th class="num">原始分</th><th class="num">作答数</th><th>判定</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="secondary">${secondaryText}</div>
+    <div class="bar btn-restart"><button class="btn-main" onclick="resetAll()">重新测试</button></div>`;
+}
+
+// 初始
+setStep(1);
+</script>
+</body>
+</html>
